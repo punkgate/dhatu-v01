@@ -33,6 +33,8 @@ def main() -> None:
     assert overall["total_energy_kwh"] == 620
     assert overall["total_water_l"] == 850
     assert beneficiation["concentrate_mno2_percent"] >= 65
+    assert beneficiation["concentrate_mass_kg"] == 940
+    assert beneficiation["tailings_mass_kg"] == 60
     assert reduction["mno_product_mass_kg"] > 0
     assert milling["final_product_mass_kg"] > 0
     print("Simulation validation passed.")

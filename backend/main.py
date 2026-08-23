@@ -45,6 +45,15 @@ def simulate_process(request: SimulationRequest) -> SimulationResponse:
         reductant_kg=request.thermal_reduction.reductant_kg,
         total_waste_kg=total_waste,
     )
+    # Guard the complete, unrounded process path before serializing it.
+    assert abs(
+        (beneficiation["concentrate_mass_kg"] + beneficiation["tailings_mass_kg"])
+        - request.feed_mass_kg
+    ) < 0.001
+    assert abs(
+        (milling["final_product_mass_kg"] + milling["off_spec_mass_kg"])
+        - reduction["mno_product_mass_kg"]
+    ) < 0.001
     return SimulationResponse(results={
         "beneficiation": _round_results(beneficiation),
         "thermal_reduction": _round_results(reduction),
