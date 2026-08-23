@@ -35,8 +35,7 @@ def main() -> None:
     assert beneficiation["concentrate_mno2_percent"] >= 65
     assert beneficiation["concentrate_mass_kg"] == 940
     assert beneficiation["tailings_mass_kg"] == 60
-    assert reduction["mno_product_mass_kg"] > 0
-    assert milling["final_product_mass_kg"] > 0
+    assert result["quality"]["passes_specification"]
     print("Simulation validation passed.")
 
 

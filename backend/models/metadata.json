@@ -1,0 +1,178 @@
+{
+  "dataset_name": "manganese_synthetic_3000.csv",
+  "dataset_rows": 3000,
+  "data_type": "engineering-constrained synthetic data",
+  "random_seed": 42,
+  "feature_columns": [
+    "feed_mass_kg",
+    "feed_mno2_percent",
+    "feed_mn_percent",
+    "feed_fe_percent",
+    "feed_sio2_percent",
+    "feed_al2o3_percent",
+    "feed_moisture_percent",
+    "feed_pb_ppm",
+    "feed_as_ppm",
+    "feed_cd_ppm",
+    "feed_hg_ppm",
+    "beneficiation_recovery_control_percent",
+    "beneficiation_energy_kwh",
+    "beneficiation_water_l",
+    "temperature_c",
+    "residence_time_min",
+    "reductant_ratio",
+    "thermal_energy_kwh",
+    "target_mesh",
+    "milling_energy_kwh"
+  ],
+  "feature_count": 20,
+  "training_timestamp": "2026-08-23T20:00:43.617285+00:00",
+  "process_prediction_targets": [
+    "mn_recovery_percent",
+    "final_product_mass_kg",
+    "total_energy_kwh",
+    "estimated_co2_kg",
+    "estimated_cost_inr"
+  ],
+  "quality_prediction_targets": [
+    "final_mn_percent",
+    "final_mno_percent",
+    "final_fe_percent",
+    "final_sio2_percent",
+    "final_al2o3_percent",
+    "residual_mno2_percent",
+    "moisture_percent",
+    "pb_ppm",
+    "as_ppm",
+    "cd_ppm",
+    "hg_ppm",
+    "density_kg_dm3",
+    "mesh_passing_percent"
+  ],
+  "process_model_metrics": {
+    "mn_recovery_percent": {
+      "mae": 2.8369451727588233,
+      "rmse": 4.36746317663412,
+      "r2": 0.9190939174681498
+    },
+    "final_product_mass_kg": {
+      "mae": 31.635786141978514,
+      "rmse": 43.533592481040316,
+      "r2": 0.9444454114365535
+    },
+    "total_energy_kwh": {
+      "mae": 25.13198376458382,
+      "rmse": 32.76741830294346,
+      "r2": 0.9898437094715401
+    },
+    "estimated_co2_kg": {
+      "mae": 30.955760340463204,
+      "rmse": 44.47212624012896,
+      "r2": 0.9798505867516154
+    },
+    "estimated_cost_inr": {
+      "mae": 3.1055189619508567,
+      "rmse": 4.262832993192773,
+      "r2": 0.9876420999992234
+    }
+  },
+  "quality_regression_metrics": {
+    "final_mn_percent": {
+      "mae": 0.9649332051886298,
+      "rmse": 1.2649837099638424,
+      "r2": 0.8280111051706791
+    },
+    "final_mno_percent": {
+      "mae": 1.5829263980950024,
+      "rmse": 2.222326267005918,
+      "r2": 0.8540728791155421
+    },
+    "final_fe_percent": {
+      "mae": 0.8450740180631675,
+      "rmse": 1.0485249177255056,
+      "r2": 0.6604511740787118
+    },
+    "final_sio2_percent": {
+      "mae": 0.7783219896162643,
+      "rmse": 1.0092308302354105,
+      "r2": 0.6668172554902508
+    },
+    "final_al2o3_percent": {
+      "mae": 0.6043131264682942,
+      "rmse": 0.7369082907441569,
+      "r2": 0.6301905557263809
+    },
+    "residual_mno2_percent": {
+      "mae": 0.564478428610478,
+      "rmse": 0.7879462451453244,
+      "r2": 0.8494655271880249
+    },
+    "moisture_percent": {
+      "mae": 0.16291265931169652,
+      "rmse": 0.19131684275384286,
+      "r2": 0.17927407144161978
+    },
+    "pb_ppm": {
+      "mae": 4.7783262747749315,
+      "rmse": 6.7463628874337465,
+      "r2": 0.9724543941591689
+    },
+    "as_ppm": {
+      "mae": 2.997896821226809,
+      "rmse": 4.155509073743746,
+      "r2": 0.970835999656434
+    },
+    "cd_ppm": {
+      "mae": 2.050998593675153,
+      "rmse": 3.0243209175259325,
+      "r2": 0.7871158415012978
+    },
+    "hg_ppm": {
+      "mae": 0.10729201301791408,
+      "rmse": 0.16240652133413053,
+      "r2": 0.6051551982327537
+    },
+    "density_kg_dm3": {
+      "mae": 0.008558354844352386,
+      "rmse": 0.010215639859760133,
+      "r2": 0.5042380449686268
+    },
+    "mesh_passing_percent": {
+      "mae": 0.7234485138363491,
+      "rmse": 0.8752451543854775,
+      "r2": -0.0022106845435312383
+    }
+  },
+  "quality_classifier_metrics": {
+    "precision": 0.7130434782608696,
+    "recall": 0.8961748633879781,
+    "f1": 0.7941888619854721,
+    "roc_auc": 0.9345834807563786,
+    "accuracy": 0.8583333333333333,
+    "confusion_matrix": [
+      [
+        351,
+        66
+      ],
+      [
+        19,
+        164
+      ]
+    ]
+  },
+  "anomaly_detection_summary": {
+    "training_population": "normal runs only",
+    "normal_detection_rate": 0.9,
+    "known_unusual_detection_rate": 0.8983333333333333,
+    "features": [
+      "feed_mno2_percent",
+      "feed_fe_percent",
+      "feed_sio2_percent",
+      "feed_moisture_percent",
+      "temperature_c",
+      "residence_time_min",
+      "reductant_ratio",
+      "target_mesh"
+    ]
+  }
+}
