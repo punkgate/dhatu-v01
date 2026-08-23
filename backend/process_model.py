@@ -16,16 +16,25 @@ def _bounded(value: float, lower: float, upper: float) -> float:
 
 
 def simulate_beneficiation(*, feed_mass_kg: float, feed_mno2_percent: float, water_l: float, energy_kwh: float) -> dict[str, float]:
-    """Upgrade MnO2 grade while conserving total solid mass."""
+    """Upgrade MnO2 grade while conserving the total feed mass.
+
+    ``recovery_percent`` is a concentrate mass recovery for this MVP.  It is
+    converted to a fraction exactly once before calculating kilograms.
+    """
     water_per_tonne = water_l / feed_mass_kg * 1_000
     energy_per_tonne = energy_kwh / feed_mass_kg * 1_000
     recovery = _bounded(74 + 0.025 * water_per_tonne + 0.055 * energy_per_tonne, 65, 94)
     grade_uplift = _bounded(8 + 0.006 * water_per_tonne + 0.012 * energy_per_tonne, 4, 22)
-    concentrate_grade = _bounded(feed_mno2_percent + grade_uplift, feed_mno2_percent, 92)
-    recovered_mno2 = feed_mass_kg * feed_mno2_percent / 100 * recovery / 100
-    concentrate_mass = recovered_mno2 / (concentrate_grade / 100)
+    concentrate_grade = _bounded(feed_mno2_percent + grade_uplift, max(feed_mno2_percent, 60), 90)
+    recovery_fraction = recovery / 100
+    concentrate_mass = feed_mass_kg * recovery_fraction
     tailings_mass = feed_mass_kg - concentrate_mass
-    return {"recovery_percent": round(recovery, 2), "concentrate_mass_kg": round(concentrate_mass, 2), "concentrate_mno2_percent": round(concentrate_grade, 2), "tailings_mass_kg": round(tailings_mass, 2)}
+    return {
+        "recovery_percent": recovery,
+        "concentrate_mass_kg": concentrate_mass,
+        "concentrate_mno2_percent": concentrate_grade,
+        "tailings_mass_kg": tailings_mass,
+    }
 
 
 def simulate_thermal_reduction(*, concentrate_mass_kg: float, concentrate_mno2_percent: float, temperature_c: float, residence_time_min: float, reductant_kg: float, energy_kwh: float, kiln_speed_rpm: float | None = None) -> dict[str, float]:
@@ -40,7 +49,12 @@ def simulate_thermal_reduction(*, concentrate_mass_kg: float, concentrate_mno2_p
     kiln_factor = 1.0 if kiln_speed_rpm is None else exp(-((kiln_speed_rpm - 2.5) / 2.0) ** 2)
     conversion = _bounded(52 + 44 * temperature_factor * residence_factor * reductant_factor * energy_factor * kiln_factor, 45, 96)
     mno_product_mass = mno2_feed_kg * conversion / 100 * MNO2_TO_MNO_MASS_RATIO
-    return {"conversion_efficiency_percent": round(conversion, 2), "mno_product_mass_kg": round(mno_product_mass, 2), "mn_recovery_percent": round(conversion, 2), "product_mn_content_percent": round(MN_CONTENT_IN_MNO_PERCENT, 2)}
+    return {
+        "conversion_efficiency_percent": conversion,
+        "mno_product_mass_kg": mno_product_mass,
+        "mn_recovery_percent": conversion,
+        "product_mn_content_percent": MN_CONTENT_IN_MNO_PERCENT,
+    }
 
 
 def simulate_milling(*, mno_product_mass_kg: float, target_mesh: int, energy_kwh: float) -> dict[str, float]:
@@ -51,4 +65,9 @@ def simulate_milling(*, mno_product_mass_kg: float, target_mesh: int, energy_kwh
     efficiency = _bounded(80 + 16 * min(energy_adequacy, 1) - fineness_penalty, 60, 97)
     final_product_mass = mno_product_mass_kg * efficiency / 100
     off_spec_mass = mno_product_mass_kg - final_product_mass
-    return {"milling_efficiency_percent": round(efficiency, 2), "final_product_mass_kg": round(final_product_mass, 2), "off_spec_mass_kg": round(off_spec_mass, 2), "final_particle_mesh": float(target_mesh)}
+    return {
+        "milling_efficiency_percent": efficiency,
+        "final_product_mass_kg": final_product_mass,
+        "off_spec_mass_kg": off_spec_mass,
+        "final_particle_mesh": float(target_mesh),
+    }

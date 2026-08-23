@@ -9,6 +9,11 @@ from schemas import SimulationRequest, SimulationResponse
 app = FastAPI(title="DHATU API", version="0.1.0", description="Manganese process simulation baseline.")
 
 
+def _round_results(values: dict[str, float], digits: int = 2) -> dict[str, float]:
+    """Round only API output; process stages always exchange full-precision values."""
+    return {key: round(value, digits) for key, value in values.items()}
+
+
 @app.get("/")
 def health_check() -> dict[str, str]:
     return {"message": "DHATU API is running"}
@@ -41,13 +46,13 @@ def simulate_process(request: SimulationRequest) -> SimulationResponse:
         total_waste_kg=total_waste,
     )
     return SimulationResponse(results={
-        "beneficiation": beneficiation,
-        "thermal_reduction": reduction,
-        "milling": milling,
-        "overall": {
+        "beneficiation": _round_results(beneficiation),
+        "thermal_reduction": _round_results(reduction),
+        "milling": _round_results(milling),
+        "overall": _round_results({
             "total_energy_kwh": round(total_energy, 2),
             "total_water_l": round(request.beneficiation.water_l, 2),
             "total_waste_kg": round(total_waste, 2),
             **impacts,
-        },
+        }),
     })

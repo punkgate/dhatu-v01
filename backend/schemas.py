@@ -24,7 +24,9 @@ class MillingInput(BaseModel):
 
 class SimulationRequest(BaseModel):
     feed_mass_kg: float = Field(gt=0, le=1_000_000)
-    feed_mno2_percent: float = Field(gt=0, le=100)
+    # A concentrate cannot both improve on a feed above 90% and remain in the
+    # MVP's 60--90% concentrate-grade range.
+    feed_mno2_percent: float = Field(gt=0, le=90)
     beneficiation: BeneficiationInput
     thermal_reduction: ThermalReductionInput
     milling: MillingInput
