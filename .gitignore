@@ -20,4 +20,4 @@ Thumbs.db
 .pytest_cache/
 .mypy_cache/
 
-.CODEX_INSTRUCTIONS.md
+CODEX_INSTRUCTIONS.md
