@@ -1,0 +1,21 @@
+# Python
+backend/.venv/
+backend/__pycache__/
+backend/**/*.pyc
+
+# Environment
+.env
+*.env
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python build/cache
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
