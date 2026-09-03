@@ -3,7 +3,7 @@
 Run from ``dhatu/backend`` with ``.venv\\Scripts\\python test_optimizer.py``.
 """
 
-from math import isfinite
+from math import isclose, isfinite
 
 from main import optimize
 from optimizer import (
@@ -13,6 +13,7 @@ from optimizer import (
     TEMPERATURE_C_RANGE,
 )
 from schemas import OptimizationRequest
+from process_model import run_process
 
 
 SAMPLE_INPUT = {
@@ -47,13 +48,30 @@ def _assert_parameter_bounds(parameters: dict[str, float]) -> None:
 def main() -> None:
     for mode in ("maximum_recovery", "minimum_impact", "balanced"):
         response = optimize(OptimizationRequest.model_validate({**SAMPLE_INPUT, "mode": mode})).model_dump()
-        optimized = response["optimized_results"]
+        optimized = response["expected_results"]
         beneficiation = optimized["beneficiation"]
         reduction = optimized["thermal_reduction"]
         milling = optimized["milling"]
 
         assert response["status"] == "success"
-        _assert_parameter_bounds(response["optimized_parameters"])
+        assert response["recommended_configuration"] == response["optimized_parameters"]
+        assert response["expected_results"] == response["optimized_results"]
+        _assert_parameter_bounds(response["recommended_configuration"])
+        reproduced = run_process(
+            OptimizationRequest.model_validate({**SAMPLE_INPUT, "mode": mode}),
+            **response["recommended_configuration"],
+        )
+        assert isclose(
+            reproduced["thermal_reduction"]["mn_recovery_percent"],
+            optimized["thermal_reduction"]["mn_recovery_percent"],
+            abs_tol=0.02,
+        )
+        assert isclose(
+            reproduced["overall"]["total_energy_kwh"],
+            optimized["overall"]["total_energy_kwh"],
+            abs_tol=0.02,
+        )
+        assert response["quality"]["passes_specification"]
         assert abs(beneficiation["concentrate_mass_kg"] + beneficiation["tailings_mass_kg"] - 1000) <= 0.01
         assert abs(milling["final_product_mass_kg"] + milling["off_spec_mass_kg"] - reduction["mno_product_mass_kg"]) <= 0.01
         if mode == "minimum_impact":

@@ -1,6 +1,7 @@
 """FastAPI entry point for the DHATU process-model baseline."""
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 
 from optimizer import optimize_process
 from process_model import run_process
@@ -9,6 +10,20 @@ from ml.predict import predict_anomaly, predict_process_and_quality
 from ml.train_models import MODELS_PATH
 
 app = FastAPI(title="DHATU API", version="0.1.0", description="Manganese process simulation baseline.")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "http://localhost:5175",
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:5174",
+        "http://127.0.0.1:5175",
+    ],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 def _round_results(values: dict[str, object], digits: int = 2) -> dict[str, object]:
@@ -50,7 +65,8 @@ def optimize(request: OptimizationRequest) -> OptimizationResponse:
             mode=request.mode,
             message="No configuration satisfies all process and product quality constraints.",
         )
-    optimized_parameters, optimized_results = optimization
+    optimized_parameters = optimization["configuration"]
+    optimized_results = optimization["results"]
     baseline_reduction = baseline["thermal_reduction"]
     baseline_milling = baseline["milling"]
     baseline_overall = baseline["overall"]
@@ -70,6 +86,10 @@ def optimize(request: OptimizationRequest) -> OptimizationResponse:
         baseline={section: _round_results(values) for section, values in baseline.items()},
         optimized_parameters=_round_results(optimized_parameters),
         optimized_results={section: _round_results(values) for section, values in optimized_results.items()},
+        recommended_configuration=_round_results(optimized_parameters),
+        expected_results={section: _round_results(values) for section, values in optimized_results.items()},
+        quality=_round_results(optimization["quality"]),
+        optimization_details={"objective": request.mode, "score": round(optimization["score"], 6)},
         improvements=_round_results(improvements),
     )
 

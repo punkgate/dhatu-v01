@@ -59,5 +59,9 @@ class OptimizationResponse(BaseModel):
     baseline: dict[str, dict[str, Any]] | None = None
     optimized_parameters: dict[str, float] | None = None
     optimized_results: dict[str, dict[str, Any]] | None = None
+    recommended_configuration: dict[str, float] | None = None
+    expected_results: dict[str, dict[str, Any]] | None = None
+    quality: dict[str, Any] | None = None
+    optimization_details: dict[str, Any] | None = None
     improvements: dict[str, float] | None = None
     message: str | None = None

@@ -42,7 +42,7 @@ def _candidate_parameters(values: Any) -> dict[str, float]:
     }
 
 
-def _evaluate(data: Any, values: Any) -> tuple[dict[str, float], dict[str, dict[str, float]]]:
+def _evaluate(data: Any, values: Any) -> tuple[dict[str, float], dict[str, dict[str, Any]]]:
     parameters = _candidate_parameters(values)
     results = run_process(
         data,
@@ -52,6 +52,22 @@ def _evaluate(data: Any, values: Any) -> tuple[dict[str, float], dict[str, dict[
         target_mesh=int(parameters["target_mesh"]),
     )
     return parameters, results
+
+
+def _candidate(data: Any, mode: str, values: Any, *, score: float | None = None) -> dict[str, Any]:
+    parameters, results = _evaluate(data, values)
+    candidate_score = _score(data, mode, values) if score is None else score
+    feasible = results["quality"]["passes_specification"] and (
+        mode != "minimum_impact"
+        or results["thermal_reduction"]["mn_recovery_percent"] >= MINIMUM_IMPACT_MIN_RECOVERY_PERCENT
+    )
+    return {
+        "configuration": parameters,
+        "results": results,
+        "quality": results["quality"],
+        "score": candidate_score,
+        "feasible": feasible,
+    }
 
 
 def _score(data: Any, mode: str, values: Any) -> float:
@@ -87,7 +103,7 @@ def _score(data: Any, mode: str, values: Any) -> float:
     return -balanced_score
 
 
-def optimize_process(data: Any, mode: str) -> tuple[dict[str, float], dict[str, dict[str, float]]] | None:
+def optimize_process(data: Any, mode: str) -> dict[str, Any] | None:
     """Find a feasible configuration by repeatedly running the process engine."""
     solution = differential_evolution(
         lambda values: _score(data, mode, values),
@@ -99,9 +115,7 @@ def optimize_process(data: Any, mode: str) -> tuple[dict[str, float], dict[str, 
         workers=1,
         updating="immediate",
     )
-    parameters, results = _evaluate(data, solution.x)
-    if not results["quality"]["passes_specification"]:
+    candidate = _candidate(data, mode, solution.x, score=float(solution.fun))
+    if not candidate["feasible"]:
         return None
-    if mode == "minimum_impact" and results["thermal_reduction"]["mn_recovery_percent"] < MINIMUM_IMPACT_MIN_RECOVERY_PERCENT:
-        return None
-    return parameters, results
+    return candidate
